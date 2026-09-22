@@ -9,7 +9,7 @@ description = "A production-safe, read-only-by-default MySQL MCP server for AI a
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "your name" }]
+authors = [{ name = "wangke-112" }]
 keywords = ["mcp", "mysql", "agent", "llm", "read-only"]
 dependencies = [
     "mcp>=1.0.0",
@@ -24,6 +24,9 @@ safe-mysql-mcp = "safe_mysql_mcp.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+safe_mysql_mcp = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

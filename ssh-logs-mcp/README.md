@@ -1,47 +1,58 @@
 # ssh-logs-mcp
 
-一个**只读**的远程日志检索 MCP Server，供 AI Agent（Codex / Claude Code / OpenCode / Cursor 等任何 MCP 宿主）安全地查生产/测试环境的服务日志。
+[![CI](https://github.com/wangke-112/agent-safe-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/wangke-112/agent-safe-tools/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
-> 关键区别：很多"日志查询"方案把安全规则写在提示词里，**靠模型自觉**。
-> `ssh-logs-mcp` 把**命令白名单、禁止重定向、禁止命令拼接**这些红线**写进代码**，模型越界会被直接拒绝，并且这些规则可单元测试。
+A **read-only** remote log inspection MCP server. It lets AI agents
+(Codex / Claude Code / OpenCode / Cursor, or any MCP-capable host) search
+service logs on remote hosts safely.
 
-## 特性
+> Many "log query" solutions put the safety rules in a prompt and trust the
+> model. `ssh-logs-mcp` **encodes the command allowlist, no-redirect and
+> no-chaining rules in code** — out-of-bounds commands are rejected, and the
+> rules are unit tested.
 
-- **命令白名单**：只允许 `tail / head / grep / zgrep / zcat / ls / wc / cat`；
-- **禁止危险写法**：`;`、`&&`、`||`、`>`、`<`、反引号、`$()`、`..` 全部拦截；
-- **流式命令必须有界**：`cat`/`zcat` 必须被 `head`/`tail` 限制，防止拉爆大日志；
-- **grep 加固**：禁止 `--file`、禁止递归 `-r/-R`；`tail` 禁止 `-f` 跟随模式；
-- **多环境配置**：`pre` / `test` / `prd` ... 每个环境独立主机与凭证；
-- **生产默认禁用**：`forbidden` 标记的环境拒绝连接，需显式开启；
-- **中文解码**：UTF-8 → GBK 自动回退，避免乱码；
-- **凭证不进仓库**：从用户目录下的配置文件读取，可用 SSH 密钥。
+[English](./README.md) | [简体中文](./README.zh-CN.md)
 
-## 安装
+## Features
+
+- **Command allowlist** — only `tail / head / grep / zgrep / zcat / ls / wc / cat`.
+- **Dangerous syntax blocked** — `;`, `&&`, `||`, `>`, `<`, backticks, `$()`, `..`.
+- **Streaming commands must be bounded** — `cat` / `zcat` must be limited by `head` / `tail`.
+- **grep hardening** — `--file` and recursive `-r/-R` blocked; `tail -f` blocked.
+- **Multiple environments** — `pre` / `test` / `prd` ... each with its own host and credentials.
+- **Production disabled by default** — an environment marked `forbidden` refuses to connect until explicitly enabled.
+- **CJK decoding** — UTF-8 → GBK fallback to avoid mojibake.
+- **Credentials never committed** — read from a user-owned config file; SSH keys supported.
+
+## Install
 
 ```bash
 pip install ssh-logs-mcp
-# 或从源码
+# or from source
 pip install -e .
 ```
 
-## 配置
+## Configuration
 
-默认读取 `~/.config/ssh-logs-mcp/servers.json`，可用环境变量 `SSH_LOGS_CONFIG` 覆盖。
+Default path `~/.config/ssh-logs-mcp/servers.json`, overridable with
+`SSH_LOGS_CONFIG`.
 
-参考 [`examples/servers.example.json`](./examples/servers.example.json)：
+See [`examples/servers.example.json`](./examples/servers.example.json):
 
 ```json
 {
   "envs": {
     "test": {
-      "desc": "内部测试机",
+      "desc": "internal test host",
       "host": "10.0.0.10",
       "port": 22,
       "user": "reader",
       "password": "CHANGE_ME"
     },
     "prd": {
-      "desc": "生产-默认禁止",
+      "desc": "production (disabled by default)",
       "host": "10.0.0.20",
       "port": 22,
       "user": "reader",
@@ -52,11 +63,11 @@ pip install -e .
 }
 ```
 
-用 SSH 密钥时把 `password` 换成 `key_path`。
+Use `key_path` instead of `password` for SSH key authentication.
 
-## 在各宿主里接入
+## Host integration
 
-**Codex（`~/.codex/config.toml`）**
+**Codex (`~/.codex/config.toml`)**
 
 ```toml
 [mcp_servers.ssh_logs]
@@ -64,49 +75,53 @@ type = "stdio"
 command = "ssh-logs-mcp"
 ```
 
-**Claude Code / OpenCode / Cursor（MCP JSON）**
+**Claude Code / OpenCode / Cursor (MCP JSON)**
 
 ```json
 { "mcpServers": { "ssh_logs": { "command": "ssh-logs-mcp" } } }
 ```
 
-## 暴露的工具
+## Tools
 
-| 工具 | 说明 |
+| Tool | Description |
 |---|---|
-| `list_envs` | 列出已配置环境（含是否禁用） |
-| `run_readonly` | 执行一条**经过白名单校验**的只读命令 |
-| `tail_log` | 查看文件末尾 N 行 |
-| `grep_log` | 在文件里检索（可选忽略大小写、上下文行） |
-| `zgrep_log` | 检索 gzip 归档日志 |
-| `list_logs` | 列出目录下的日志文件 |
+| `list_envs` | List configured environments (including whether disabled) |
+| `run_readonly` | Run an **allowlist-validated** read-only command |
+| `tail_log` | Show the last N lines of a file |
+| `grep_log` | Search a file (optional ignore-case and context lines) |
+| `zgrep_log` | Search a gzip-compressed log archive |
+| `list_logs` | List log files in a directory |
 
-## 安全模型
+## Security model
 
-| 规则 | 落地位置 |
+| Rule | Enforced in |
 |---|---|
-| 命令白名单 | `policy.validate_command` |
-| 禁止 `;`/`&&`/`||`/重定向/反引号/`$()` | `policy.validate_command` |
-| 禁止路径穿越 `..` | `policy.validate_command` |
-| `cat`/`zcat` 必须有界 | `policy.validate_command` |
-| `grep --file` / 递归 拦截 | `policy._check_options` |
-| `tail -f` 拦截 | `policy._check_options` |
-| 生产环境禁用 | `config.get_env` + `forbidden` |
+| Command allowlist | `policy.validate_command` |
+| No `;` / `&&` / `||` / redirects / backticks / `$()` | `policy.validate_command` |
+| No path traversal `..` | `policy.validate_command` |
+| `cat` / `zcat` must be bounded | `policy.validate_command` |
+| `grep --file` / recursive blocked | `policy._check_options` |
+| `tail -f` blocked | `policy._check_options` |
+| Production disabled | `config.get_env` + `forbidden` |
 
-## 测试
+## Tests
 
 ```bash
 pytest
 ```
 
-命令策略是纯函数，测试不依赖 SSH 连接。
+The command policy is a pure function, so tests need no SSH connection.
 
-## 已知边界
+## Known limitations
 
-- 依赖 `paramiko`，默认使用 `AutoAddPolicy`（不校验 host key），生产建议改造为固定 known_hosts；
-- 命令校验基于白名单 + 禁用子串，不是完整的 shell 解析器，但已覆盖常见注入手法；
-- 为安全起见，`grep_log` / `zgrep_log` 的 `pattern` 不接受 `|`、`()`、`$` 等复杂正则字符；需要复杂管道时请用 `run_readonly` 自行构造（同样受白名单校验）；
-- 只支持基于行的日志命令，不含 `journalctl` 等系统日志源。
+- Depends on `paramiko` and uses `AutoAddPolicy` by default (no host key
+  verification); production should pin a known_hosts file;
+- Command validation is an allowlist plus forbidden-substring check, not a full
+  shell parser, but it covers common injection techniques;
+- For safety, the `pattern` argument of `grep_log` / `zgrep_log` does not accept
+  complex regex characters such as `|`, `()`, `$`; use `run_readonly` for
+  complex pipelines (also validated by the allowlist);
+- Line-based log commands only; no `journalctl` or other system log sources.
 
 ## License
 

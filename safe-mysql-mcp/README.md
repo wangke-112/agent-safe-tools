@@ -1,33 +1,43 @@
 # safe-mysql-mcp
 
-一个默认只读、**把安全护栏写进代码**的 MySQL MCP Server，供 AI Agent（Codex / Claude Code / OpenCode / Cursor 等任何 MCP 宿主）安全地查询数据库。
+[![CI](https://github.com/wangke-112/agent-safe-tools/actions/workflows/ci.yml/badge.svg)](https://github.com/wangke-112/agent-safe-tools/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
-> 大多数 MySQL MCP Server 只负责"连上"，把安全交给模型自觉遵守提示词。
-> `safe-mysql-mcp` 把限制下沉到代码：**只读强制、DDL 拦截、自动补 LIMIT、写操作必须有 WHERE**，并且这些规则全部可单元测试。
+A read-only-by-default MySQL MCP server that **encodes its safety rules in
+code**. It lets AI agents (Codex / Claude Code / OpenCode / Cursor, or any
+MCP-capable host) query databases safely.
 
-## 特性
+> Most MySQL MCP servers just "connect" and leave safety to the model's prompt.
+> `safe-mysql-mcp` moves the limits into code — **read-only by default, DDL
+> blocked, automatic LIMIT, writes require WHERE** — and every rule is unit
+> tested.
 
-- **默认只读**：只有 `SELECT / SHOW / DESCRIBE / EXPLAIN / WITH` 能执行。
-- **DDL / 危险语句拦截**：`DROP / TRUNCATE / ALTER / GRANT / LOAD DATA ...` 直接拒绝。
-- **防多语句与注释注入**：`SELECT 1; DROP ...`、`--` / `#` / `/* */` 一律拦截。
-- **自动 LIMIT**：`SELECT` 未带 `LIMIT` 时自动补，并受 `max_limit` 约束。
-- **写操作必须有 WHERE**：`UPDATE / DELETE` 不带 `WHERE` 拒绝。
-- **标识符校验**：库名 / 表名白名单正则，防止注入式标识符。
-- **多 profile**：一个进程可配置多个库（本地 / 测试 / 生产），用 `profile` 参数切换，生产可单独设为只读。
-- **schema 白名单**：可限制只允许访问指定库。
-- **凭证不落盘**：从环境变量或用户目录下的配置文件读取。
+[English](./README.md) | [简体中文](./README.zh-CN.md)
 
-## 安装
+## Features
+
+- **Read-only by default** — only `SELECT / SHOW / DESCRIBE / EXPLAIN / WITH`.
+- **DDL / dangerous statements blocked** — `DROP / TRUNCATE / ALTER / GRANT / LOAD DATA ...`.
+- **Multi-statement and comment injection blocked** — `SELECT 1; DROP ...`, `--`, `#`, `/* */`.
+- **Automatic LIMIT** — added to `SELECT` without one, capped by `max_limit`.
+- **Writes require WHERE** — `UPDATE / DELETE` without `WHERE` are rejected.
+- **Identifier validation** — schema/table names are whitelist-checked.
+- **Multiple profiles** — one process can serve several databases, switchable via the `profile` argument; production can be read-only.
+- **Schema allowlist** — restrict access to specific databases.
+- **Credentials never stored** — read from environment variables or a user-owned config file.
+
+## Install
 
 ```bash
 pip install safe-mysql-mcp
-# 或从源码
+# or from source
 pip install -e .
 ```
 
-## 配置
+## Configuration
 
-### 方式一：环境变量（单库，最简）
+### Option 1: environment variables (single database)
 
 ```bash
 export MYSQL_HOST=127.0.0.1
@@ -38,25 +48,25 @@ export MYSQL_DATABASE=app
 export MYSQL_READ_ONLY=true
 ```
 
-### 方式二：profiles 文件（多库）
+### Option 2: a profiles file (multiple databases)
 
-默认路径 `~/.config/safe-mysql-mcp/profiles.json`，可用环境变量 `SAFE_MYSQL_PROFILES` 覆盖。
-用 `SAFE_MYSQL_PROFILE` 选择当前 profile。
+Default path `~/.config/safe-mysql-mcp/profiles.json`, overridable with
+`SAFE_MYSQL_PROFILES`. Select the active profile with `SAFE_MYSQL_PROFILE`.
 
-参考 [`examples/profiles.example.json`](./examples/profiles.example.json)：
+See [`examples/profiles.example.json`](./examples/profiles.example.json):
 
 ```json
 {
   "profiles": {
-    "local":   { "host": "127.0.0.1", "user": "readonly_user", "password": "CHANGE_ME", "database": "app",  "read_only": true },
-    "staging": { "host": "10.0.0.10", "user": "app_user",     "password": "CHANGE_ME", "database": "app_staging", "read_only": false, "max_limit": 500 }
+    "local":   { "host": "127.0.0.1", "user": "readonly_user", "password": "CHANGE_ME", "database": "app", "read_only": true },
+    "staging": { "host": "10.0.0.10", "user": "app_user", "password": "CHANGE_ME", "database": "app_staging", "read_only": false, "max_limit": 500 }
   }
 }
 ```
 
-## 在各宿主里接入
+## Host integration
 
-**Codex（`~/.codex/config.toml`）**
+**Codex (`~/.codex/config.toml`)**
 
 ```toml
 [mcp_servers.safe_mysql]
@@ -65,7 +75,7 @@ command = "safe-mysql-mcp"
 env = { SAFE_MYSQL_PROFILE = "local" }
 ```
 
-**Claude Code / OpenCode / Cursor（MCP JSON）**
+**Claude Code / OpenCode / Cursor (MCP JSON)**
 
 ```json
 {
@@ -78,48 +88,49 @@ env = { SAFE_MYSQL_PROFILE = "local" }
 }
 ```
 
-## 暴露的工具
+## Tools
 
-| 工具 | 说明 |
+| Tool | Description |
 |---|---|
-| `mysql_ping` | 连通性检查 |
-| `mysql_current_database` | 当前连接上下文 |
-| `mysql_query` | 只读查询（自动补 LIMIT） |
-| `mysql_execute` | 写操作（需 `read_only=false`，且 `UPDATE/DELETE` 必须带 `WHERE`） |
-| `mysql_explain` | 对 `SELECT/WITH` 执行 `EXPLAIN` |
-| `mysql_list_databases` / `mysql_list_tables` | 库 / 表列表 |
-| `mysql_list_columns` / `mysql_describe_table` | 列结构 |
-| `mysql_list_indexes` / `mysql_show_create_table` / `mysql_table_info` | 索引与建表信息 |
-| `mysql_table_count` / `mysql_sample_table` | 计数 / 采样 |
-| `mysql_list_profiles` | 列出已配置的 profile |
+| `mysql_ping` | Connectivity check |
+| `mysql_current_database` | Current connection context |
+| `mysql_query` | Read-only query (LIMIT injected automatically) |
+| `mysql_execute` | Write (requires `read_only=false`; `UPDATE/DELETE` must have `WHERE`) |
+| `mysql_explain` | `EXPLAIN` for `SELECT/WITH` |
+| `mysql_list_databases` / `mysql_list_tables` | Database / table listing |
+| `mysql_list_columns` / `mysql_describe_table` | Column structure |
+| `mysql_list_indexes` / `mysql_show_create_table` / `mysql_table_info` | Index and DDL info |
+| `mysql_table_count` / `mysql_sample_table` | Counting / sampling |
+| `mysql_list_profiles` | List configured profiles |
 
-所有工具都接受可选的 `profile` 参数来切换连接。
+Every tool accepts an optional `profile` argument to switch connections.
 
-## 安全模型
+## Security model
 
-| 规则 | 落地位置 |
+| Rule | Enforced in |
 |---|---|
-| 只读强制 | `guard.guard_sql` |
-| DDL / 危险语句 | `guard.guard_sql` |
-| 多语句 / 注释注入 | `guard.clean_sql` |
-| 自动 LIMIT + 上限 | `guard.apply_limit` |
-| 写操作必须带 WHERE | `guard.guard_sql` |
-| 标识符校验 | `guard.identifier` / `guard.split_table` |
-| schema 白名单 | `guard.check_schema_allowed` |
+| Read-only enforcement | `guard.guard_sql` |
+| DDL / dangerous statements | `guard.guard_sql` |
+| Multi-statement / comment injection | `guard.clean_sql` |
+| Automatic LIMIT + cap | `guard.apply_limit` |
+| Writes require WHERE | `guard.guard_sql` |
+| Identifier validation | `guard.identifier` / `guard.split_table` |
+| Schema allowlist | `guard.check_schema_allowed` |
 
-## 测试
+## Tests
 
 ```bash
 pytest
 ```
 
-护栏是纯函数，测试不依赖数据库连接。
+The guardrails are pure functions, so tests need no database connection.
 
-## 已知边界
+## Known limitations
 
-- 目前仅支持 MySQL；
-- 单进程、每 profile 一个连接，未做连接池；
-- 写能力需要显式把 `read_only` 设为 `false`，生产建议保持只读。
+- MySQL only;
+- Single process, one connection per profile, no connection pool;
+- Write capability must be enabled explicitly via `read_only=false`; keep
+  production read-only.
 
 ## License
 
