@@ -31,9 +31,13 @@ service logs on remote hosts safely.
 
 ## Install
 
+Not published to PyPI — install from source:
+
 ```bash
-pip install ssh-logs-mcp
-# or from source
+git clone https://github.com/wangke-112/agent-safe-tools.git
+pip install -e agent-safe-tools/ssh-logs-mcp
+
+# or, if you are already inside the repo:
 pip install -e .
 ```
 

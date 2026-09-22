@@ -32,9 +32,13 @@ MCP-capable host) query databases safely.
 
 ## Install
 
+Not published to PyPI — install from source:
+
 ```bash
-pip install safe-mysql-mcp
-# or from source
+git clone https://github.com/wangke-112/agent-safe-tools.git
+pip install -e agent-safe-tools/safe-mysql-mcp
+
+# or, if you are already inside the repo:
 pip install -e .
 ```
 

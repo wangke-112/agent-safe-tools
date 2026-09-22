@@ -26,9 +26,13 @@
 
 ## 安装
 
+未发布到 PyPI，从源码安装：
+
 ```bash
-pip install ssh-logs-mcp
-# 或从源码
+git clone https://github.com/wangke-112/agent-safe-tools.git
+pip install -e agent-safe-tools/ssh-logs-mcp
+
+# 或已在仓库内：
 pip install -e .
 ```
 
