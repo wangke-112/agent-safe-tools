@@ -106,7 +106,7 @@ pytest
 - 依赖 `paramiko`，默认使用 `AutoAddPolicy`（不校验 host key），生产建议改造为固定 known_hosts；
 - 命令校验基于白名单 + 禁用子串，不是完整的 shell 解析器，但已覆盖常见注入手法；
 - 为安全起见，`grep_log` / `zgrep_log` 的 `pattern` 不接受 `|`、`()`、`$` 等复杂正则字符；需要复杂管道时请用 `run_readonly` 自行构造（同样受白名单校验）；
-- 只支持基于行的日志命令，不含 `journalctl` 等系统日志源（可扩展）。
+- 只支持基于行的日志命令，不含 `journalctl` 等系统日志源。
 
 ## License
 

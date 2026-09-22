@@ -117,7 +117,7 @@ pytest
 
 ## 已知边界
 
-- 只支持 MySQL（PostgreSQL 等可作为后续扩展）；
+- 目前仅支持 MySQL；
 - 单进程、每 profile 一个连接，未做连接池；
 - 写能力需要显式把 `read_only` 设为 `false`，生产建议保持只读。
 

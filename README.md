@@ -69,13 +69,6 @@ cd safe-mysql-mcp && pip install -e ".[dev]" && pytest
 cd ../ssh-logs-mcp && pip install -e ".[dev]" && pytest
 ```
 
-## Roadmap
-
-- [x] `v0.1.0` 初始版本：两个安全只读 MCP Server
-- [ ] 日志侧加固：去掉原始命令入口，改为固定操作 + `logRoot` 路径收敛 + `--` 结束选项 + `grep -F`
-- [ ] SSH 主机指纹校验（known_hosts）
-- [ ] MySQL 侧补充 PostgreSQL profile 支持
-
 ## License
 
 [MIT](./LICENSE)
