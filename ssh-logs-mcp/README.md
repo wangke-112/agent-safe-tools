@@ -15,6 +15,9 @@ service logs on remote hosts safely.
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
+> **Layout:** the core of this project is an **MCP server**. `skill/` is a
+> **recommended** Skill layer for skill-capable hosts (Codex / Claude Code).
+
 ## Features
 
 - **Command allowlist** — only `tail / head / grep / zgrep / zcat / ls / wc / cat`.
@@ -81,20 +84,21 @@ command = "ssh-logs-mcp"
 { "mcpServers": { "ssh_logs": { "command": "ssh-logs-mcp" } } }
 ```
 
-## Install as a skill (optional)
+## Install the skill (recommended)
 
-The MCP server provides the tools; the bundled `SKILL.md` tells the agent when
-and how to use them. Install it as a skill so the model reads the workflow and
-safety rules:
+The MCP server provides the tools; the `skill/` directory is a **recommended**
+Skill layer that tells the agent when and how to use them. Without it the model
+can still call the tools, but it triggers less reliably. Install it so the model
+reads the workflow and safety rules:
 
 ```bash
 # Codex
 mkdir -p ~/.codex/skills/ssh-logs-mcp
-cp -r SKILL.md agents ~/.codex/skills/ssh-logs-mcp/
+cp -r skill/. ~/.codex/skills/ssh-logs-mcp/
 
 # Claude Code
 mkdir -p ~/.claude/skills/ssh-logs-mcp
-cp -r SKILL.md agents ~/.claude/skills/ssh-logs-mcp/
+cp -r skill/. ~/.claude/skills/ssh-logs-mcp/
 ```
 
 ## Tools

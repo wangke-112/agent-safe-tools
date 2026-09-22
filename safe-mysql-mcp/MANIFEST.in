@@ -2,8 +2,7 @@ include LICENSE
 include README.md
 include README.zh-CN.md
 include SECURITY.md
-include SKILL.md
 include requirements.txt
-recursive-include agents *.yaml
+recursive-include skill *
 recursive-include examples *
 recursive-include tests *.py

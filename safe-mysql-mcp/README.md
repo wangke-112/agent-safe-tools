@@ -15,6 +15,9 @@ MCP-capable host) query databases safely.
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
+> **Layout:** the core of this project is an **MCP server**. `skill/` is a
+> **recommended** Skill layer for skill-capable hosts (Codex / Claude Code).
+
 ## Features
 
 - **Read-only by default** — only `SELECT / SHOW / DESCRIBE / EXPLAIN / WITH`.
@@ -88,20 +91,21 @@ env = { SAFE_MYSQL_PROFILE = "local" }
 }
 ```
 
-## Install as a skill (optional)
+## Install the skill (recommended)
 
-The MCP server provides the tools; the bundled `SKILL.md` tells the agent when
-and how to use them. Install it as a skill so the model reads the workflow and
-safety rules:
+The MCP server provides the tools; the `skill/` directory is a **recommended**
+Skill layer that tells the agent when and how to use them. Without it the model
+can still call the tools, but it triggers less reliably. Install it so the model
+reads the workflow and safety rules:
 
 ```bash
 # Codex
 mkdir -p ~/.codex/skills/safe-mysql-mcp
-cp -r SKILL.md agents ~/.codex/skills/safe-mysql-mcp/
+cp -r skill/. ~/.codex/skills/safe-mysql-mcp/
 
 # Claude Code
 mkdir -p ~/.claude/skills/safe-mysql-mcp
-cp -r SKILL.md agents ~/.claude/skills/safe-mysql-mcp/
+cp -r skill/. ~/.claude/skills/safe-mysql-mcp/
 ```
 
 ## Tools

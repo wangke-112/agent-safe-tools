@@ -22,9 +22,9 @@ and covered by unit tests.
 
 The two packages are independent and can also be published as separate repositories.
 
-Each package also ships a `SKILL.md` (plus `agents/openai.yaml`), so it can be
-installed as a Codex / Claude Code skill — giving the model the workflow and
-safety rules — in addition to the MCP tools.
+Each package's core is an **MCP server**; it also ships a `skill/` layer that is
+**recommended** to install on skill-capable hosts (Codex / Claude Code), so the
+model knows when and how to call the tools.
 
 ## Quick start
 

@@ -11,6 +11,8 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
+> **定位**：本项目核心是 **MCP Server**；`skill/` 是**建议安装**的 Skill 适配层，供支持 Skill 的宿主（Codex / Claude Code）使用。
+
 ## 特性
 
 - **命令白名单**：只允许 `tail / head / grep / zgrep / zcat / ls / wc / cat`；
@@ -76,18 +78,18 @@ command = "ssh-logs-mcp"
 { "mcpServers": { "ssh_logs": { "command": "ssh-logs-mcp" } } }
 ```
 
-## 作为 Skill 安装（可选）
+## 安装 Skill（建议安装）
 
-MCP 提供工具，随包附带的 `SKILL.md` 告诉模型什么时候用、怎么用、红线是什么。把它作为 Skill 安装：
+MCP 提供工具，`skill/` 目录是**建议安装**的 Skill 层，告诉模型什么时候用、怎么用、红线是什么。只装 MCP 时模型仍能调用，但**触发没那么可靠**；装上 Skill 后模型会读工作流与安全规则：
 
 ```bash
 # Codex
 mkdir -p ~/.codex/skills/ssh-logs-mcp
-cp -r SKILL.md agents ~/.codex/skills/ssh-logs-mcp/
+cp -r skill/. ~/.codex/skills/ssh-logs-mcp/
 
 # Claude Code
 mkdir -p ~/.claude/skills/ssh-logs-mcp
-cp -r SKILL.md agents ~/.claude/skills/ssh-logs-mcp/
+cp -r skill/. ~/.claude/skills/ssh-logs-mcp/
 ```
 
 ## 暴露的工具

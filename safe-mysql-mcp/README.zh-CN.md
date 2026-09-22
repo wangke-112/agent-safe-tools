@@ -11,6 +11,8 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
+> **定位**：本项目核心是 **MCP Server**；`skill/` 是**建议安装**的 Skill 适配层，供支持 Skill 的宿主（Codex / Claude Code）使用。
+
 ## 特性
 
 - **默认只读**：只有 `SELECT / SHOW / DESCRIBE / EXPLAIN / WITH` 能执行。
@@ -84,18 +86,18 @@ env = { SAFE_MYSQL_PROFILE = "local" }
 }
 ```
 
-## 作为 Skill 安装（可选）
+## 安装 Skill（建议安装）
 
-MCP 提供工具，随包附带的 `SKILL.md` 告诉模型什么时候用、怎么用、红线是什么。把它作为 Skill 安装：
+MCP 提供工具，`skill/` 目录是**建议安装**的 Skill 层，告诉模型什么时候用、怎么用、红线是什么。只装 MCP 时模型仍能调用，但**触发没那么可靠**；装上 Skill 后模型会读工作流与安全规则：
 
 ```bash
 # Codex
 mkdir -p ~/.codex/skills/safe-mysql-mcp
-cp -r SKILL.md agents ~/.codex/skills/safe-mysql-mcp/
+cp -r skill/. ~/.codex/skills/safe-mysql-mcp/
 
 # Claude Code
 mkdir -p ~/.claude/skills/safe-mysql-mcp
-cp -r SKILL.md agents ~/.claude/skills/safe-mysql-mcp/
+cp -r skill/. ~/.claude/skills/safe-mysql-mcp/
 ```
 
 ## 暴露的工具

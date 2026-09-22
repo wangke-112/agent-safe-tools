@@ -19,7 +19,7 @@
 
 两个项目互相独立，也可以各自作为单独仓库发布。
 
-每个包还附带 `SKILL.md`（以及 `agents/openai.yaml`），除了 MCP 工具之外，**也可以作为 Codex / Claude Code 的 Skill 安装**，把工作流程与安全红线一并交给模型。
+每个包的核心是 **MCP Server**，另附带 `skill/` 层，**建议在支持 Skill 的宿主（Codex / Claude Code）上一并安装**，让模型知道什么时候该调用这些工具、以及调用时的红线。
 
 ## 快速开始
 
