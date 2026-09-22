@@ -17,4 +17,5 @@
   - UTF-8 / GBK 自适应解码、`altPort` 回退
   - 6 个工具：list_envs / run_readonly / tail_log / grep_log / zgrep_log / list_logs
   - 12 个单元测试
+- 每个包附带 `SKILL.md` 与 `agents/openai.yaml`，可作为 Codex / Claude Code 的 Skill 安装
 - GitHub Actions CI：Python 3.10 / 3.11 / 3.12 矩阵，分别测试两个子项目

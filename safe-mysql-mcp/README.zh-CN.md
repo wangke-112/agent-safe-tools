@@ -84,6 +84,20 @@ env = { SAFE_MYSQL_PROFILE = "local" }
 }
 ```
 
+## 作为 Skill 安装（可选）
+
+MCP 提供工具，随包附带的 `SKILL.md` 告诉模型什么时候用、怎么用、红线是什么。把它作为 Skill 安装：
+
+```bash
+# Codex
+mkdir -p ~/.codex/skills/safe-mysql-mcp
+cp -r SKILL.md agents ~/.codex/skills/safe-mysql-mcp/
+
+# Claude Code
+mkdir -p ~/.claude/skills/safe-mysql-mcp
+cp -r SKILL.md agents ~/.claude/skills/safe-mysql-mcp/
+```
+
 ## 暴露的工具
 
 | 工具 | 说明 |

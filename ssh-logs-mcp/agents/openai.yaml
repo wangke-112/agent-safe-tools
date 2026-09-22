@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remote Log Inspector"
+  short_description: "Read-only remote log search with a code-enforced command allowlist"
+  default_prompt: "Use ssh-logs-mcp to inspect the specified environment's logs read-only and summarize the root cause."

@@ -19,6 +19,8 @@
 
 两个项目互相独立，也可以各自作为单独仓库发布。
 
+每个包还附带 `SKILL.md`（以及 `agents/openai.yaml`），除了 MCP 工具之外，**也可以作为 Codex / Claude Code 的 Skill 安装**，把工作流程与安全红线一并交给模型。
+
 ## 快速开始
 
 ```bash

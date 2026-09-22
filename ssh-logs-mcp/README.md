@@ -81,6 +81,22 @@ command = "ssh-logs-mcp"
 { "mcpServers": { "ssh_logs": { "command": "ssh-logs-mcp" } } }
 ```
 
+## Install as a skill (optional)
+
+The MCP server provides the tools; the bundled `SKILL.md` tells the agent when
+and how to use them. Install it as a skill so the model reads the workflow and
+safety rules:
+
+```bash
+# Codex
+mkdir -p ~/.codex/skills/ssh-logs-mcp
+cp -r SKILL.md agents ~/.codex/skills/ssh-logs-mcp/
+
+# Claude Code
+mkdir -p ~/.claude/skills/ssh-logs-mcp
+cp -r SKILL.md agents ~/.claude/skills/ssh-logs-mcp/
+```
+
 ## Tools
 
 | Tool | Description |

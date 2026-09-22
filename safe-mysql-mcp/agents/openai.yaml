@@ -1,0 +1,4 @@
+interface:
+  display_name: "Safe MySQL MCP"
+  short_description: "Read-only MySQL inspection with code-enforced SQL guardrails"
+  default_prompt: "Use safe-mysql-mcp to inspect the target MySQL schema and run bounded read-only queries; keep production read-only unless explicitly authorized."

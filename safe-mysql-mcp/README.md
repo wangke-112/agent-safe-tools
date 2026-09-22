@@ -88,6 +88,22 @@ env = { SAFE_MYSQL_PROFILE = "local" }
 }
 ```
 
+## Install as a skill (optional)
+
+The MCP server provides the tools; the bundled `SKILL.md` tells the agent when
+and how to use them. Install it as a skill so the model reads the workflow and
+safety rules:
+
+```bash
+# Codex
+mkdir -p ~/.codex/skills/safe-mysql-mcp
+cp -r SKILL.md agents ~/.codex/skills/safe-mysql-mcp/
+
+# Claude Code
+mkdir -p ~/.claude/skills/safe-mysql-mcp
+cp -r SKILL.md agents ~/.claude/skills/safe-mysql-mcp/
+```
+
 ## Tools
 
 | Tool | Description |

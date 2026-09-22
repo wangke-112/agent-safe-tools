@@ -22,6 +22,10 @@ and covered by unit tests.
 
 The two packages are independent and can also be published as separate repositories.
 
+Each package also ships a `SKILL.md` (plus `agents/openai.yaml`), so it can be
+installed as a Codex / Claude Code skill — giving the model the workflow and
+safety rules — in addition to the MCP tools.
+
 ## Quick start
 
 ```bash

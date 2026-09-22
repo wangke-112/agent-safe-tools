@@ -76,6 +76,20 @@ command = "ssh-logs-mcp"
 { "mcpServers": { "ssh_logs": { "command": "ssh-logs-mcp" } } }
 ```
 
+## 作为 Skill 安装（可选）
+
+MCP 提供工具，随包附带的 `SKILL.md` 告诉模型什么时候用、怎么用、红线是什么。把它作为 Skill 安装：
+
+```bash
+# Codex
+mkdir -p ~/.codex/skills/ssh-logs-mcp
+cp -r SKILL.md agents ~/.codex/skills/ssh-logs-mcp/
+
+# Claude Code
+mkdir -p ~/.claude/skills/ssh-logs-mcp
+cp -r SKILL.md agents ~/.claude/skills/ssh-logs-mcp/
+```
+
 ## 暴露的工具
 
 | 工具 | 说明 |
