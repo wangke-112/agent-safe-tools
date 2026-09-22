@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ssh-logs-mcp"
+version = "0.1.0"
+description = "A read-only remote log inspection MCP server with a code-enforced command allowlist."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "your name" }]
+keywords = ["mcp", "logs", "ssh", "agent", "llm", "read-only"]
+dependencies = [
+    "mcp>=1.0.0",
+    "paramiko>=3.4,<5",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+ssh-logs-mcp = "ssh_logs_mcp.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

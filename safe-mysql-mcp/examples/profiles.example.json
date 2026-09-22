@@ -1,0 +1,35 @@
+{
+  "profiles": {
+    "local": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "user": "readonly_user",
+      "password": "CHANGE_ME",
+      "database": "app",
+      "read_only": true,
+      "default_limit": 100,
+      "max_limit": 1000,
+      "allowed_schemas": []
+    },
+    "staging": {
+      "host": "10.0.0.10",
+      "port": 3306,
+      "user": "app_user",
+      "password": "CHANGE_ME",
+      "database": "app_staging",
+      "read_only": false,
+      "max_limit": 500,
+      "allowed_schemas": ["app_staging"]
+    },
+    "production": {
+      "host": "10.0.0.20",
+      "port": 3306,
+      "user": "readonly",
+      "password": "CHANGE_ME",
+      "database": "app_prod",
+      "read_only": true,
+      "max_limit": 200,
+      "allowed_schemas": ["app_prod"]
+    }
+  }
+}

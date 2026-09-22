@@ -1,0 +1,12 @@
+# Example Codex config (~/.codex/config.toml)
+
+[mcp_servers.safe_mysql]
+type = "stdio"
+command = "safe-mysql-mcp"
+env = { SAFE_MYSQL_PROFILE = "local" }
+
+# Read-only production instance from the same profiles file:
+[mcp_servers.safe_mysql_prod]
+type = "stdio"
+command = "safe-mysql-mcp"
+env = { SAFE_MYSQL_PROFILE = "production", MCP_SERVER_NAME = "safe_mysql_prod" }

@@ -1,0 +1,34 @@
+{
+  "envs": {
+    "pre": {
+      "desc": "客户测试-核心交易机",
+      "host": "10.0.0.11",
+      "port": 22,
+      "user": "CHANGE_ME",
+      "password": "CHANGE_ME"
+    },
+    "test": {
+      "desc": "内部测试机",
+      "host": "10.0.0.12",
+      "port": 22,
+      "user": "CHANGE_ME",
+      "password": "CHANGE_ME"
+    },
+    "prd": {
+      "desc": "生产-默认禁止连接",
+      "host": "10.0.0.13",
+      "port": 22,
+      "user": "CHANGE_ME",
+      "password": "CHANGE_ME",
+      "forbidden": true
+    },
+    "key-auth-example": {
+      "desc": "使用 SSH 密钥的环境",
+      "host": "10.0.0.14",
+      "port": 22,
+      "user": "reader",
+      "key_path": "C:/Users/CHANGE_ME/.ssh/id_ed25519",
+      "altPort": 2222
+    }
+  }
+}

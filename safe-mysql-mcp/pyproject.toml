@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "safe-mysql-mcp"
+version = "0.1.0"
+description = "A production-safe, read-only-by-default MySQL MCP server for AI agents."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "your name" }]
+keywords = ["mcp", "mysql", "agent", "llm", "read-only"]
+dependencies = [
+    "mcp>=1.0.0",
+    "pymysql>=1.1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+safe-mysql-mcp = "safe_mysql_mcp.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
