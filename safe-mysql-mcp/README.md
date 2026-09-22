@@ -4,9 +4,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
-A read-only-by-default MySQL MCP server that **encodes its safety rules in
-code**. It lets AI agents (Codex / Claude Code / OpenCode / Cursor, or any
-MCP-capable host) query databases safely.
+Ask your AI coding agent, in natural language, to inspect a MySQL database —
+safely. This is a read-only-by-default MySQL MCP server that **encodes its
+safety rules in code**, for any MCP-capable host (Codex / Claude Code / OpenCode
+/ Cursor).
 
 > Most MySQL MCP servers just "connect" and leave safety to the model's prompt.
 > `safe-mysql-mcp` moves the limits into code — **read-only by default, DDL

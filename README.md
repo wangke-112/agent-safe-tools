@@ -4,8 +4,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
-Read-only, safety-first tooling for AI agents. Works with any MCP-capable host
-(Codex, Claude Code, OpenCode, Cursor, ...).
+Ask your AI coding agent, in natural language, to search production logs or
+inspect a database — safely. Works with any MCP-capable host (Codex, Claude
+Code, OpenCode, Cursor, ...).
 
 **Core idea: keep the safety red lines in code, not in a prompt.** Instead of
 trusting the model to obey instructions, the limits are enforced by validation

@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
-一个默认只读、**把安全护栏写进代码**的 MySQL MCP Server，供 AI Agent（Codex / Claude Code / OpenCode / Cursor 等任何 MCP 宿主）安全地查询数据库。
+用自然语言让 AI 编码助手安全地查询 MySQL 数据库。一个默认只读、**把安全护栏写进代码**的 MySQL MCP Server，供任何 MCP 宿主（Codex / Claude Code / OpenCode / Cursor 等）使用。
 
 > 大多数 MySQL MCP Server 只负责"连上"，把安全交给模型自觉遵守提示词。
 > `safe-mysql-mcp` 把限制下沉到代码：**只读强制、DDL 拦截、自动补 LIMIT、写操作必须有 WHERE**，并且这些规则全部可单元测试。

@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
-给 AI Agent 用的**安全只读工具集**。面向任何支持 MCP 的宿主（Codex / Claude Code / OpenCode / Cursor 等）。
+用自然语言让你的 AI 编码助手查生产日志、看数据库——而且安全。面向任何支持 MCP 的宿主（Codex / Claude Code / OpenCode / Cursor 等）。
 
 核心理念：**把安全红线从提示词下沉到代码**——不靠模型自觉，靠校验强制，并有单元测试覆盖。
 

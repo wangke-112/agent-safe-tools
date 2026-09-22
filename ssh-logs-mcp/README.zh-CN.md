@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
-一个**只读**的远程日志检索 MCP Server，供 AI Agent（Codex / Claude Code / OpenCode / Cursor 等任何 MCP 宿主）安全地查生产/测试环境的服务日志。
+用自然语言让 AI 编码助手安全地检索远程服务器日志。一个**只读**的远程日志 MCP Server，供任何 MCP 宿主（Codex / Claude Code / OpenCode / Cursor 等）使用。
 
 > 很多"日志查询"方案把安全规则写在提示词里，**靠模型自觉**。
 > `ssh-logs-mcp` 把**命令白名单、禁止重定向、禁止命令拼接**这些红线**写进代码**，模型越界会被直接拒绝，并且这些规则可单元测试。

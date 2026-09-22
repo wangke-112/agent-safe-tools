@@ -4,9 +4,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 
-A **read-only** remote log inspection MCP server. It lets AI agents
-(Codex / Claude Code / OpenCode / Cursor, or any MCP-capable host) search
-service logs on remote hosts safely.
+Ask your AI coding agent, in natural language, to search service logs on remote
+hosts — safely. This is a **read-only** remote log inspection MCP server for any
+MCP-capable host (Codex / Claude Code / OpenCode / Cursor).
 
 > Many "log query" solutions put the safety rules in a prompt and trust the
 > model. `ssh-logs-mcp` **encodes the command allowlist, no-redirect and
