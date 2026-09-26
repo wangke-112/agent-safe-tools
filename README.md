@@ -73,8 +73,10 @@ safety to the model's prompt. This project encodes the limits:
 - **Command allowlist**, no `;` / `&&` / redirects / backticks / `$()`, no path
   traversal;
 - **Production disabled by default** and must be enabled explicitly;
-- **Credentials only via environment variables or local config files**, never
-  committed.
+- **Credentials use environment variables or local key/config stores**, never
+  inline passwords in a committed profile example;
+- **SSH paths are confined to the configured log root** and host keys are
+  checked through `known_hosts` or an explicit fingerprint.
 
 All of these rules are pure functions with unit tests.
 

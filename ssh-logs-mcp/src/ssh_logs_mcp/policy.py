@@ -8,6 +8,7 @@ pure and therefore easy to unit test.
 from __future__ import annotations
 
 import re
+from pathlib import PurePosixPath
 
 ALLOWED_COMMANDS = frozenset({"tail", "head", "grep", "zgrep", "zcat", "cat", "ls", "wc"})
 UNBOUNDED_STREAMERS = frozenset({"cat", "zcat"})
@@ -36,6 +37,22 @@ def ensure_safe_input(value: str, *, what: str = "value") -> str:
     if ".." in value:
         raise CommandPolicyError(f"{what} must not contain '..'")
     return value
+
+
+def ensure_log_path(path: str, log_root: str) -> str:
+    """Require an absolute or root-relative path to stay below log_root."""
+    ensure_safe_input(path, what="path")
+    ensure_safe_input(log_root, what="log_root")
+    if not log_root.startswith("/"):
+        raise CommandPolicyError("log_root must be an absolute POSIX path")
+    root = PurePosixPath(log_root)
+    candidate = PurePosixPath(path) if path.startswith("/") else root / path
+    candidate = PurePosixPath(*candidate.parts)
+    if not candidate.is_absolute():
+        raise CommandPolicyError("log paths must be absolute or relative to log_root")
+    if not candidate.is_relative_to(root):
+        raise CommandPolicyError("path must stay below configured log_root")
+    return candidate.as_posix()
 
 
 def ensure_glob(pattern: str) -> str:

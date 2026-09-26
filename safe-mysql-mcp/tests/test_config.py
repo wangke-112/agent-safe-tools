@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from safe_mysql_mcp.config import list_profile_names, load_profile
 
 
@@ -25,6 +27,7 @@ def test_profiles_file(monkeypatch, tmp_path):
                     "prod": {
                         "host": "10.0.0.9",
                         "user": "ro",
+                        "password_env": "MYSQL_PROD_PASSWORD",
                         "read_only": True,
                         "allowed_schemas": ["app_prod"],
                     }
@@ -34,9 +37,18 @@ def test_profiles_file(monkeypatch, tmp_path):
         encoding="utf-8",
     )
     monkeypatch.setenv("SAFE_MYSQL_PROFILES", str(path))
+    monkeypatch.setenv("MYSQL_PROD_PASSWORD", "secret")
 
     profile = load_profile("prod")
     assert profile.host == "10.0.0.9"
     assert profile.read_only is True
     assert profile.allowed_schemas == ("app_prod",)
     assert list_profile_names() == ["prod"]
+
+
+def test_inline_password_is_rejected(monkeypatch, tmp_path):
+    path = tmp_path / "profiles.json"
+    path.write_text(json.dumps({"profiles": {"prod": {"host": "db", "password": "secret"}}}), encoding="utf-8")
+    monkeypatch.setenv("SAFE_MYSQL_PROFILES", str(path))
+    with pytest.raises(ValueError, match="inline passwords"):
+        load_profile("prod")

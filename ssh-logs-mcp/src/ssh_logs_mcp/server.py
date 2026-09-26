@@ -15,7 +15,7 @@ from mcp.server.fastmcp import FastMCP
 
 from . import transport
 from .config import get_env, load_envs
-from .policy import ensure_glob, ensure_safe_input, validate_command
+from .policy import ensure_glob, ensure_log_path, ensure_safe_input, validate_command
 
 mcp = FastMCP(os.getenv("MCP_SERVER_NAME", "ssh-logs"))
 
@@ -40,24 +40,18 @@ def list_envs() -> dict[str, Any]:
     }
 
 
-@mcp.tool(
-    description=(
-        "Run a single read-only command after allowlist validation. Only pipelines built "
-        "from tail/head/grep/zgrep/zcat/ls/wc/cat are permitted."
-    )
-)
+@mcp.tool(description="Disabled: use the structured log tools, which enforce log_root.")
 def run_readonly(env: str, command: str) -> dict[str, Any]:
-    server = get_env(env)
-    validate_command(command)
-    return transport.run_command(server, command)
+    raise ValueError("raw commands are disabled; use the structured log tools")
 
 
 @mcp.tool(description="Show the last N lines of a log file.")
 def tail_log(env: str, path: str, lines: int = 200) -> dict[str, Any]:
-    ensure_safe_input(path, what="path")
+    server = get_env(env)
+    path = ensure_log_path(path, server.log_root)
     command = f"tail -n {_bounded(lines, 1, 10000)} {shlex.quote(path)}"
     validate_command(command)
-    return transport.run_command(get_env(env), command)
+    return transport.run_command(server, command)
 
 
 @mcp.tool(description="Search a log file with grep.")
@@ -69,7 +63,8 @@ def grep_log(
     max_lines: int = 200,
     ignore_case: bool = False,
 ) -> dict[str, Any]:
-    ensure_safe_input(path, what="path")
+    server = get_env(env)
+    path = ensure_log_path(path, server.log_root)
     ensure_safe_input(pattern, what="pattern")
     flags = ["-n"]
     if ignore_case:
@@ -81,7 +76,7 @@ def grep_log(
         f"| head -n {_bounded(max_lines, 1, 2000)}"
     )
     validate_command(command)
-    return transport.run_command(get_env(env), command)
+    return transport.run_command(server, command)
 
 
 @mcp.tool(description="Search a gzip-compressed log archive with zgrep.")
@@ -92,7 +87,8 @@ def zgrep_log(
     max_lines: int = 100,
     ignore_case: bool = False,
 ) -> dict[str, Any]:
-    ensure_safe_input(path, what="path")
+    server = get_env(env)
+    path = ensure_log_path(path, server.log_root)
     ensure_safe_input(pattern, what="pattern")
     flags = ["-n"] + (["-i"] if ignore_case else [])
     command = (
@@ -100,7 +96,7 @@ def zgrep_log(
         f"| head -n {_bounded(max_lines, 1, 2000)}"
     )
     validate_command(command)
-    return transport.run_command(get_env(env), command)
+    return transport.run_command(server, command)
 
 
 @mcp.tool(description="List log files in a directory (simple glob pattern allowed).")
@@ -110,14 +106,15 @@ def list_logs(
     pattern: str = "*.log",
     max_lines: int = 200,
 ) -> dict[str, Any]:
-    ensure_safe_input(directory, what="directory")
+    server = get_env(env)
+    directory = ensure_log_path(directory, server.log_root)
     ensure_glob(pattern)
     command = (
-        f"ls -lh {shlex.quote(directory)}/{pattern} "
+        f"ls -lh {shlex.quote(directory.rstrip('/') + '/')}{pattern} "
         f"| head -n {_bounded(max_lines, 1, 2000)}"
     )
     validate_command(command)
-    return transport.run_command(get_env(env), command)
+    return transport.run_command(server, command)
 
 
 def main() -> None:

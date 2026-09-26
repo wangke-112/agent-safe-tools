@@ -67,3 +67,22 @@ def test_ensure_glob():
         ensure_glob("*.log; rm -rf /")
     with pytest.raises(CommandPolicyError):
         ensure_glob("a b")
+import pytest
+
+from ssh_logs_mcp.policy import CommandPolicyError, ensure_log_path
+
+
+def test_log_path_is_confined_to_root():
+    assert ensure_log_path("app/service.log", "/var/log") == "/var/log/app/service.log"
+    assert ensure_log_path("/var/log/app/service.log", "/var/log") == "/var/log/app/service.log"
+
+
+@pytest.mark.parametrize("path", ["/etc/passwd", "../secrets", "app/../../etc/passwd", "/var/log-old/app.log"])
+def test_log_path_rejects_escape(path):
+    with pytest.raises(CommandPolicyError):
+        ensure_log_path(path, "/var/log")
+
+
+def test_log_root_must_be_absolute():
+    with pytest.raises(CommandPolicyError):
+        ensure_log_path("app.log", "var/log")

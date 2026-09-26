@@ -7,6 +7,7 @@ import datetime as dt
 import decimal
 from typing import Any
 
+import os
 import pymysql
 from pymysql.cursors import DictCursor
 
@@ -14,11 +15,14 @@ from .config import Profile
 
 
 def connect(profile: Profile):
+    password = os.getenv(profile.password_env) if profile.password_env else profile.password
+    if profile.password_env and password is None:
+        raise ValueError(f"environment variable {profile.password_env} is not set")
     return pymysql.connect(
         host=profile.host,
         port=profile.port,
         user=profile.user,
-        password=profile.password,
+        password=password or "",
         database=profile.database,
         charset=profile.charset,
         cursorclass=DictCursor,

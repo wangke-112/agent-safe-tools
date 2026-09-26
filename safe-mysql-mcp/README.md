@@ -29,7 +29,7 @@ safety rules in code**, for any MCP-capable host (Codex / Claude Code / OpenCode
 - **Identifier validation** — schema/table names are whitelist-checked.
 - **Multiple profiles** — one process can serve several databases, switchable via the `profile` argument; production can be read-only.
 - **Schema allowlist** — restrict access to specific databases.
-- **Credentials never stored** — read from environment variables or a user-owned config file.
+- **Credentials kept out of profile files** — specify `password_env` and provide its value in the MCP host environment; inline passwords are rejected.
 
 ## Install
 
@@ -61,13 +61,14 @@ export MYSQL_READ_ONLY=true
 Default path `~/.config/safe-mysql-mcp/profiles.json`, overridable with
 `SAFE_MYSQL_PROFILES`. Select the active profile with `SAFE_MYSQL_PROFILE`.
 
-See [`examples/profiles.example.json`](./examples/profiles.example.json):
+See [`examples/profiles.example.json`](./examples/profiles.example.json). Set each
+referenced password environment variable in the MCP host process.
 
 ```json
 {
   "profiles": {
-    "local":   { "host": "127.0.0.1", "user": "readonly_user", "password": "CHANGE_ME", "database": "app", "read_only": true },
-    "staging": { "host": "10.0.0.10", "user": "app_user", "password": "CHANGE_ME", "database": "app_staging", "read_only": false, "max_limit": 500 }
+    "local":   { "host": "127.0.0.1", "user": "readonly_user", "password_env": "MYSQL_LOCAL_PASSWORD", "database": "app", "read_only": true },
+    "staging": { "host": "10.0.0.10", "user": "app_user", "password_env": "MYSQL_STAGING_PASSWORD", "database": "app_staging", "read_only": false, "max_limit": 500 }
   }
 }
 ```

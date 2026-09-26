@@ -5,21 +5,27 @@
       "host": "10.0.0.11",
       "port": 22,
       "user": "CHANGE_ME",
-      "password": "CHANGE_ME"
+      "password_env": "SSH_LOGS_PRE_PASSWORD",
+      "log_root": "/var/log/my-service",
+      "known_hosts": "~/.ssh/known_hosts"
     },
     "test": {
       "desc": "内部测试机",
       "host": "10.0.0.12",
       "port": 22,
       "user": "CHANGE_ME",
-      "password": "CHANGE_ME"
+      "password_env": "SSH_LOGS_TEST_PASSWORD",
+      "log_root": "/var/log/my-service",
+      "known_hosts": "~/.ssh/known_hosts"
     },
     "prd": {
       "desc": "生产-默认禁止连接",
       "host": "10.0.0.13",
       "port": 22,
       "user": "CHANGE_ME",
-      "password": "CHANGE_ME",
+      "password_env": "SSH_LOGS_PRD_PASSWORD",
+      "log_root": "/var/log/my-service",
+      "known_hosts": "~/.ssh/known_hosts",
       "forbidden": true
     },
     "key-auth-example": {
@@ -28,7 +34,9 @@
       "port": 22,
       "user": "reader",
       "key_path": "C:/Users/CHANGE_ME/.ssh/id_ed25519",
-      "altPort": 2222
+      "altPort": 2222,
+      "log_root": "/var/log/my-service",
+      "known_hosts": "~/.ssh/known_hosts"
     }
   }
 }

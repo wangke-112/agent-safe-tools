@@ -27,6 +27,7 @@ class Profile:
     port: int = 3306
     user: str = "root"
     password: str = ""
+    password_env: str | None = None
     database: str | None = None
     charset: str = "utf8mb4"
     read_only: bool = True
@@ -58,12 +59,18 @@ def _env_int(value: str | None, default: int) -> int:
 
 
 def _from_mapping(name: str, data: dict[str, Any]) -> Profile:
+    if data.get("password"):
+        raise ValueError(f"profile '{name}' must use password_env; inline passwords are blocked")
+    password_env = data.get("password_env") or data.get("passwordEnv")
+    if password_env and not os.getenv(str(password_env)):
+        raise ValueError(f"environment variable {password_env} is not set")
     return Profile(
         name=name,
         host=str(data.get("host", "127.0.0.1")),
         port=int(data.get("port", 3306)),
         user=str(data.get("user", "root")),
-        password=str(data.get("password", "")),
+        password="",
+        password_env=str(password_env) if password_env else None,
         database=data.get("database") or None,
         charset=str(data.get("charset", "utf8mb4")),
         read_only=bool(data.get("read_only", True)),
@@ -82,7 +89,8 @@ def _from_env(name: str) -> Profile:
         host=os.getenv("MYSQL_HOST", "127.0.0.1"),
         port=_env_int(os.getenv("MYSQL_PORT"), 3306),
         user=os.getenv("MYSQL_USER", "root"),
-        password=os.getenv("MYSQL_PASSWORD", ""),
+        password="",
+        password_env="MYSQL_PASSWORD" if os.getenv("MYSQL_PASSWORD") else None,
         database=os.getenv("MYSQL_DATABASE") or None,
         charset=os.getenv("MYSQL_CHARSET", "utf8mb4"),
         read_only=_env_bool(os.getenv("MYSQL_READ_ONLY"), True),

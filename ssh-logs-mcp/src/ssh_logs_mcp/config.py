@@ -26,7 +26,12 @@ class ServerEnv:
     alt_port: int | None = None
     user: str = ""
     password: str = ""
+    password_env: str | None = None
     key_path: str | None = None
+    log_root: str = ""
+    known_hosts: str | None = None
+    host_key_fingerprint: str | None = None
+    allow_raw_commands: bool = False
     forbidden: bool = False
     description: str = ""
 
@@ -36,14 +41,21 @@ def config_path() -> Path:
 
 
 def _from_mapping(name: str, data: dict) -> ServerEnv:
+    if data.get("password"):
+        raise ConfigError(f"env '{name}' must use key_path or password_env; inline passwords are blocked")
     return ServerEnv(
         name=name,
         host=str(data.get("host", "")),
         port=int(data.get("port", 22)),
         alt_port=int(data["altPort"]) if data.get("altPort") else None,
         user=str(data.get("user", "")),
-        password=str(data.get("password", "")),
+        password="",
+        password_env=data.get("password_env") or data.get("passwordEnv"),
         key_path=data.get("key_path") or data.get("keyPath"),
+        log_root=str(data.get("log_root", data.get("logRoot", ""))),
+        known_hosts=data.get("known_hosts") or data.get("knownHosts"),
+        host_key_fingerprint=data.get("host_key_fingerprint") or data.get("hostKeyFingerprint"),
+        allow_raw_commands=bool(data.get("allow_raw_commands", False)),
         forbidden=bool(data.get("forbidden", False)),
         description=str(data.get("desc", data.get("description", ""))),
     )
@@ -67,6 +79,14 @@ def get_env(name: str) -> ServerEnv:
         raise ConfigError(f"env '{name}' is disabled (forbidden=true)")
     if not env.host:
         raise ConfigError(f"env '{name}' is missing host")
-    if not env.password and not env.key_path:
-        raise ConfigError(f"env '{name}' needs password or key_path")
+    if not env.log_root:
+        raise ConfigError(f"env '{name}' is missing log_root")
+    if env.password:
+        raise ConfigError(f"env '{name}' must use key_path or password_env; inline passwords are blocked")
+    if not env.password_env and not env.key_path:
+        raise ConfigError(f"env '{name}' needs key_path or password_env")
+    if env.password_env and not os.getenv(env.password_env):
+        raise ConfigError(f"environment variable {env.password_env} is not set")
+    if not env.known_hosts and not env.host_key_fingerprint:
+        raise ConfigError(f"env '{name}' needs known_hosts or host_key_fingerprint")
     return env

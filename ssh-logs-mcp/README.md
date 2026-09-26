@@ -27,7 +27,9 @@ MCP-capable host (Codex / Claude Code / OpenCode / Cursor).
 - **Multiple environments** — `pre` / `test` / `prd` ... each with its own host and credentials.
 - **Production disabled by default** — an environment marked `forbidden` refuses to connect until explicitly enabled.
 - **CJK decoding** — UTF-8 → GBK fallback to avoid mojibake.
-- **Credentials never committed** — read from a user-owned config file; SSH keys supported.
+- **Log root isolation** — structured tools can only access paths below each environment's configured `log_root`.
+- **SSH host verification** — trust a `known_hosts` entry or pin a SHA256 host-key fingerprint; unknown keys fail closed.
+- **Credentials never committed** — SSH passwords are read from environment variables; SSH keys are supported. Inline passwords are rejected.
 
 ## Install
 
@@ -46,7 +48,8 @@ pip install -e .
 Default path `~/.config/ssh-logs-mcp/servers.json`, overridable with
 `SSH_LOGS_CONFIG`.
 
-See [`examples/servers.example.json`](./examples/servers.example.json):
+See [`examples/servers.example.json`](./examples/servers.example.json). Set the referenced
+password environment variable in the MCP host process, or use `key_path`.
 
 ```json
 {
@@ -56,21 +59,26 @@ See [`examples/servers.example.json`](./examples/servers.example.json):
       "host": "10.0.0.10",
       "port": 22,
       "user": "reader",
-      "password": "CHANGE_ME"
+      "password_env": "SSH_TEST_PASSWORD",
+      "log_root": "/var/log/my-service",
+      "known_hosts": "~/.ssh/known_hosts"
     },
     "prd": {
       "desc": "production (disabled by default)",
       "host": "10.0.0.20",
       "port": 22,
       "user": "reader",
-      "password": "CHANGE_ME",
+      "password_env": "SSH_PRD_PASSWORD",
+      "log_root": "/var/log/my-service",
+      "known_hosts": "~/.ssh/known_hosts",
       "forbidden": true
     }
   }
 }
 ```
 
-Use `key_path` instead of `password` for SSH key authentication.
+`run_readonly` is intentionally disabled because arbitrary command arguments
+cannot be proven to stay within `log_root`; use the structured tools instead.
 
 ## Host integration
 
@@ -122,7 +130,9 @@ cp -r skill/. ~/.claude/skills/ssh-logs-mcp/
 |---|---|
 | Command allowlist | `policy.validate_command` |
 | No `;` / `&&` / `||` / redirects / backticks / `$()` | `policy.validate_command` |
-| No path traversal `..` | `policy.validate_command` |
+| Log-path containment | `policy.ensure_log_path` (structured tools) |
+| Unknown SSH host keys rejected / SHA256 pinning | `transport._FingerprintPolicy` |
+| Inline SSH passwords rejected | `config.get_env` |
 | `cat` / `zcat` must be bounded | `policy.validate_command` |
 | `grep --file` / recursive blocked | `policy._check_options` |
 | `tail -f` blocked | `policy._check_options` |
@@ -138,8 +148,8 @@ The command policy is a pure function, so tests need no SSH connection.
 
 ## Known limitations
 
-- Depends on `paramiko` and uses `AutoAddPolicy` by default (no host key
-  verification); production should pin a known_hosts file;
+- Path isolation is lexical and cannot detect remote symlinks beneath `log_root`;
+  configure the root so untrusted users cannot create symlinks inside it.
 - Command validation is an allowlist plus forbidden-substring check, not a full
   shell parser, but it covers common injection techniques;
 - For safety, the `pattern` argument of `grep_log` / `zgrep_log` does not accept

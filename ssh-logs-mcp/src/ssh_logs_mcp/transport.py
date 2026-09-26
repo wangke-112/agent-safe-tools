@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import base64
+import hashlib
+import os
+from pathlib import Path
 from typing import Any
 
 import paramiko
@@ -31,7 +35,12 @@ def run_command(
     exec_timeout: int = EXEC_TIMEOUT,
 ) -> dict[str, Any]:
     client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    known_hosts = Path(env.known_hosts).expanduser() if env.known_hosts else Path.home() / ".ssh" / "known_hosts"
+    if not known_hosts.exists() and not env.host_key_fingerprint:
+        raise ConnectionError(f"known_hosts file not found: {known_hosts}")
+    if known_hosts.exists():
+        client.load_host_keys(str(known_hosts))
+    client.set_missing_host_key_policy(_FingerprintPolicy(env.host_key_fingerprint))
 
     ports = [env.port] + ([env.alt_port] if env.alt_port else [])
     kwargs: dict[str, Any] = {
@@ -44,7 +53,7 @@ def run_command(
     if env.key_path:
         kwargs["key_filename"] = env.key_path
     else:
-        kwargs["password"] = env.password
+        kwargs["password"] = os.environ[env.password_env]
 
     last_error: Exception | None = None
     used_port = env.port
@@ -76,3 +85,16 @@ def run_command(
         "stdout": out,
         "stderr": err,
     }
+
+
+class _FingerprintPolicy(paramiko.MissingHostKeyPolicy):
+    def __init__(self, expected: str | None):
+        self.expected = expected
+
+    def missing_host_key(self, client, hostname, key):
+        if not self.expected:
+            raise paramiko.SSHException(f"unknown host key for {hostname}; add it to known_hosts")
+        digest = base64.b64encode(hashlib.sha256(key.asbytes()).digest()).decode("ascii").rstrip("=")
+        actual = f"SHA256:{digest}"
+        if actual != self.expected:
+            raise paramiko.SSHException(f"host key fingerprint mismatch for {hostname}")
